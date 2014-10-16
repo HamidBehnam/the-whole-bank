@@ -1,0 +1,447 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" data-ng-app="TheWholeBank">
+<head>
+    <title>The Whole Bank</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Hamid Ahmadi Behnam" />
+    <meta name="keywords" content="AngularJs, jQuery, Bootstrap, AJAX, HTML5, JSON, CSS3, JavaScript" />
+    <meta name="description" content="The Whole Bank is a web application which is implemented to show how to use the modern web technologies to deal with data in client side." />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css" rel="stylesheet" />
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="JavaScript/BankModuleReference.js"></script>
+    <script src="JavaScript/BankController.js"></script>
+    <script src="JavaScript/idDecisionDirective.js"></script>
+    <script src="JavaScript/validationCheckDirective.js"></script>
+    <script src="JavaScript/notificationPermissionDirective.js"></script>
+    <script src="JavaScript/ObjectPrototypes.js"></script>
+    <style>
+        .editSection, .error-message, .form-control-feedback {
+            display: none;
+        }
+        #theAlert {
+            position: fixed;
+            bottom: 0px;
+            right: 0px;
+            /*border-width: thick;*/
+            background-color: #66CC66;
+        }
+    </style>
+</head>
+<body data-ng-controller="bankController as bankData">
+    <div class="jumbotron">
+        <div class="container">
+            <h1><strong>The Whole Bank</strong></h1>
+            <h2><small class="text-capitalize">Managing bank information</small></h2>
+        </div>
+    </div>
+    <div class="container">
+        <ul class="nav nav-pills">
+            <li class="dropdown active">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Bankers<span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="#bankers" data-toggle="tab">List Of Bankers</a></li>
+                    <li><a href="#" data-toggle="modal" data-target="#bankerInput1" ng-click="bankData.resetTempEntity(bankData.createEmptyBanker(), 'New Banker')">Add New Banker</a></li>
+                </ul>
+            </li>
+            <li class="dropdown"><a href="#" data-toggle="dropdown" class="dropdown-toggle">
+                Customers<span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="#customers" data-toggle="tab">List Of Customers</a></li>
+                    <li><a href="#customerInput1" data-toggle="modal" id="newCustomer" ng-click="bankData.resetTempEntity(bankData.createEmptyCustomer(), 'New Customer');bankData.setActive(-1);">Add New Customer</a></li>
+                </ul>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div id="bankers" class="tab-pane fade in active">
+                <input type="search" class="form-control" ng-model="bankData.searchBankersValue" placeholder="Search Bankers">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <tr>
+                            <th>ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Branch</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                            <th>Actions</th>
+                        </tr>
+                        <tr ng-repeat="banker in bankData.bankers | filter:bankData.searchBankersValue">
+                            <td>{{banker.id}}</td>
+                            <td>{{banker.firstName}}</td>
+                            <td>{{banker.lastName}}</td>
+                            <td>{{banker.branch}}</td>
+                            <td>{{banker.phone}}</td>
+                            <td>{{banker.email}}</td>
+                            <td><a class="btn btn-info btn-sm" data-toggle="modal" data-target="#bankerInput1" ng-click="bankData.setEditableEntity(banker, bankData.createEmptyBanker(), 'Edit the Banker')">Edit</a><a class="btn btn-danger btn-sm" data-toggle="modal" data-target="#confirmDelete" ng-click="bankData.setDeletableIndex($index, bankData.bankers, bankData.createEmptyBanker())">Delete</a></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div id="customers" class="tab-pane fade in">
+                <input type="search" id="searchInput" class="form-control" ng-model="bankData.searchCustomersValue" placeholder="Search Customers" ng-focus="bankData.setActive(-1);">
+                <div class="panel panel-default" ng-repeat="customer in bankData.customers | filter:bankData.searchCustomersValue" ng-class="{'panel-primary':bankData.isPanelActive($index)}">
+                    <div class="panel-heading">
+                        <h4><strong>{{customer.firstName + " " + customer.lastName}}</strong></h4>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <h5><strong>Customer Information</strong></h5>
+                                <p>Customer ID: {{customer.id}}</p>
+                                <p>Date Of Birth: {{customer.dateOfBirth}}</p>
+                                <p>Address: {{customer.address}}</p>
+                                <p>Phone: {{customer.phone}}</p>
+                                <p>Email: {{customer.email}}</p>
+                            </div>
+                            <div class="col-sm-4">
+                                <h5><strong>History</strong></h5>
+                                <p>Member From: {{customer.memberFrom}}</p>
+                                <p>Original Branch: {{customer.originalBranch}}</p>
+                            </div>
+                            <div class="col-sm-4">
+                                <h5><strong>Last Services</strong></h5>
+                                {{bankData.sortArray(customer.services, 'serviceDate', 'desc')}}
+                                <p>On: {{bankData.sortedArray[0].serviceDate}}</p>
+                                <p>Service: {{bankData.sortedArray[0].description}}</p>
+                                <p>Banker: {{bankData.getBankerFullName(bankData.sortedArray[0].bankerId)}}</p>
+                                <a href="#servicesPane{{$index + 1}}" class="btn btn-success btn-sm manage-service" data-toggle="tab" ng-click="bankData.setEditableEntity(customer, bankData.createEmptyCustomer());bankData.setActive($index, 2);">Manage Services</a>
+                            </div>
+                        </div>
+                        <section class="editSection">
+                            <ul class="nav nav-tabs">
+                                <li ng-class="{active:(bankData.isTabActive(0) && bankData.isCurrentPanel($index)) || (bankData.isTabPrevious(0) && !bankData.isCurrentPanel($index))}"><a href="#contactPane{{$index + 1}}" data-toggle="tab" ng-click="bankData.setActiveTab(0);bankData.setEditableEntity(customer, bankData.createEmptyCustomer());">Contact Information</a></li>
+                                <li ng-class="{active:(bankData.isTabActive(1) && bankData.isCurrentPanel($index)) || (bankData.isTabPrevious(1) && !bankData.isCurrentPanel($index))}"><a href="#historyPane{{$index + 1}}" data-toggle="tab" ng-click="bankData.setActiveTab(1);bankData.setEditableEntity(customer, bankData.createEmptyCustomer());">History</a></li>
+                                <li ng-class="{active:(bankData.isTabActive(2) && bankData.isCurrentPanel($index)) || (bankData.isTabPrevious(2) && !bankData.isCurrentPanel($index))}" class="dropdown">
+                                    <a href="#" data-toggle="dropdown" class="dropdown-toggle">
+                                        Services <span class="caret"></span>
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="#servicesPane{{$index + 1}}" data-toggle="tab" ng-click="bankData.setActiveTab(2);">List Of Services</a></li>
+                                        <li><a href="#serviceInput1" data-toggle="modal" ng-click="bankData.resetTempEntity(bankData.createEmptyService(), 'New Service')">Add New Service</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div id="contactPane{{$index + 1}}" class="tab-pane fade in" ng-class="{active:(bankData.isTabActive(0) && bankData.isCurrentPanel($index)) || (bankData.isTabPrevious(0) && !bankData.isCurrentPanel($index))}">
+                                    <br />
+                                    <form class="form-horizontal" name="customerContactInputForm" novalidate>
+                                        <div class="form-group">
+                                            <label for="customerId1" class="control-label col-sm-2">Customer ID:</label>
+                                            <div class="col-sm-5">
+                                                <input id="customerId1" class="form-control" type="text" required data-validation-check="bankData.idVirgin" data-id-decision="bankData.idOK" ng-change="bankData.setIdStatus(bankData.customers, bankData.createEmptyCustomer())" ng-model="bankData.tempEntities.Customer.id" name="name" value="" placeholder="Customer ID" />
+                                                <span class="glyphicon glyphicon-remove form-control-feedback"></span>
+                                                <label class="control-label error-message required">This Field Is Required</label>
+                                                <label class="control-label error-message id-not-ok">Please Enter a Unipue ID</label>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="firstNameCus" class="control-label col-sm-2">First Name:</label>
+                                            <div class="col-sm-5">
+                                                <input id="firstNameCus" class="form-control" type="text" ng-model="bankData.tempEntities.Customer.firstName" name="name" value="" placeholder="First Name" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="lastNameCus" class="control-label col-sm-2">Last Name:</label>
+                                            <div class="col-sm-5">
+                                                <input id="lastNameCus" class="form-control" type="text" ng-model="bankData.tempEntities.Customer.lastName" name="name" value="" placeholder="Last Name" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="lastNameCus" class="control-label col-sm-2">Date Of Birth:</label>
+                                            <div class="col-sm-5">
+                                                <input id="lastNameCus" class="form-control" type="date" ng-model="bankData.tempEntities.Customer.dateOfBirth" name="name" value="" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="phoneCus" class="control-label col-sm-2">Phone:</label>
+                                            <div class="col-sm-5">
+                                                <input id="phoneCus" class="form-control" type="text" ng-model="bankData.tempEntities.Customer.phone" name="name" value="" placeholder="Phone" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="emailCus" class="control-label col-sm-2">Email:</label>
+                                            <div class="col-sm-5">
+                                                <input id="emailCus" class="form-control" type="text" ng-model="bankData.tempEntities.Customer.email" name="name" value="" placeholder="Email" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="addressCus" class="control-label col-sm-2">Address:</label>
+                                            <div class="col-sm-5">
+                                                <textarea id="addressCus" class="form-control" ng-model="bankData.tempEntities.Customer.address" name="name" placeholder="Address"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="col-sm-offset-2 col-sm-5">
+                                                <a class="btn btn-info" ng-click="bankData.setEditableEntity(customer, bankData.createEmptyCustomer())">Reset</a>
+                                                <a class="btn btn-primary" ng-click="customerContactInputForm.$valid && bankData.idOK && bankData.saveEntity(bankData.customers, bankData.createEmptyCustomer());bankData.setVirginity();">Save</a>
+                                                <a class="btn btn-danger" ng-click="bankData.setDeletableIndex($index, bankData.customers, bankData.createEmptyCustomer());bankData.setActive(-1);" data-toggle="modal" data-target="#confirmDelete">Remove Customer</a>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div id="historyPane{{$index + 1}}" class="tab-pane fade in" ng-class="{active:(bankData.isTabActive(1) && bankData.isCurrentPanel($index)) || (bankData.isTabPrevious(1) && !bankData.isCurrentPanel($index))}">
+                                    <br />
+                                    <form class="form-horizontal">
+                                        <div class="form-group">
+                                            <label for="memberFromCus" class="control-label col-sm-2">Member From:</label>
+                                            <div class="col-sm-5">
+                                                <input id="memberFromCus" ng-model="bankData.tempEntities.Customer.memberFrom" class="form-control" type="date" name="name" value="" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="originalBranchCus" class="control-label col-sm-2">Original Branch:</label>
+                                            <div class="col-sm-5">
+                                                <input id="originalBranchCus" ng-model="bankData.tempEntities.Customer.originalBranch" type="text" class="form-control" name="name" value="" placeholder="Original Branch" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="col-sm-offset-2 col-sm-5">
+                                                <a class="btn btn-info" ng-click="bankData.setEditableEntity(customer, bankData.createEmptyCustomer())">Reset</a>
+                                                <a class="btn btn-primary" ng-click="bankData.saveEntity(bankData.customers, bankData.createEmptyCustomer())">Save</a>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div id="servicesPane{{$index + 1}}" class="tab-pane fade in" ng-class="{active:(bankData.isTabActive(2) && bankData.isCurrentPanel($index)) || (bankData.isTabPrevious(2) && !bankData.isCurrentPanel($index))}">
+                                    <input type="search" class="form-control" ng-model="bankData.searchServicesValue" placeholder="Search Services">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover table-striped">
+                                            <tr>
+                                                <th>Service ID</th>
+                                                <th>Date</th>
+                                                <th>Service</th>
+                                                <th>Banker</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                            <tr ng-repeat="service in customer.services | filter:bankData.searchServicesValue | orderBy:'-serviceDate'">
+                                                <td>{{service.id}}</td>
+                                                <td>{{service.serviceDate}}</td>
+                                                <td>{{service.description}}</td>
+                                                <td>{{bankData.getBankerFullName(service.bankerId)}}</td>
+                                                <td><a class="btn btn-info btn-sm" data-toggle="modal" data-target="#serviceInput1" ng-click="bankData.setEditableEntity(service, bankData.createEmptyService(), 'Edit the Service')">Edit</a><a class="btn btn-danger btn-sm" data-toggle="modal" data-target="#confirmDelete" ng-click="bankData.setDeletableIndex($index, customer.services, bankData.createEmptyService())">Delete</a></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="panel-footer">
+                        <a class="btn btn-link btn-block showHideEdit" ng-click="bankData.setEditableEntity(customer, bankData.createEmptyCustomer());bankData.setActive($index, 0)">Edit {{customer.firstName + " " + customer.lastName}}'s Information <span ng-class="{dropup:bankData.isCurrentPanel($index)}"><span class="caret"></span></span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="confirmDelete">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header text-center bg-danger">
+                        <h3 class="modal-title">Confirm Delete</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p>The Item will be deleted permanently.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                        <a href="" class="btn btn-danger" data-dismiss="modal" ng-click="bankData.deleteEntity(bankData.currentArray)">OK</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="bankerInput1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header text-center bg-primary">
+                        <a class="close" data-dismiss="modal">&times;</a>
+                        <h3 class="modal-title">{{bankData.entityInputTitle}}</h3>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal" name="bankerInputForm" novalidate>
+                            <div class="form-group">
+                                <label for="idedit" class="control-label col-sm-3">Banker ID:</label>
+                                <div class="col-sm-9">
+                                    <input id="idedit" class="form-control" type="text" name="name" value="" data-validation-check="bankData.idVirgin" data-id-decision="bankData.idOK" ng-change="bankData.setIdStatus(bankData.bankers, bankData.createEmptyBanker())" ng-model="bankData.tempEntities.Banker.id" placeholder="ID" required />
+                                    <span class="glyphicon glyphicon-remove form-control-feedback"></span>
+                                    <label class="control-label error-message required" style="display:block">This Field Is Required</label>
+                                    <label class="control-label error-message id-not-ok" style="display:block">Please Enter a Unipue ID</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="firstedit" class="control-label col-sm-3">First Name:</label>
+                                <div class="col-sm-9">
+                                    <input id="firstedit" class="form-control" type="text" name="name" value="" ng-model="bankData.tempEntities.Banker.firstName" placeholder="First Name" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastedit" class="control-label col-sm-3">Last Name:</label>
+                                <div class="col-sm-9">
+                                    <input id="lastedit" class="form-control" type="text" name="name" value="" ng-model="bankData.tempEntities.Banker.lastName" placeholder="Last Name" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="branchedit" class="control-label col-sm-3">Branch:</label>
+                                <div class="col-sm-9">
+                                    <input id="branchedit" class="form-control" type="text" name="name" value="" ng-model="bankData.tempEntities.Banker.branch" placeholder="Branch" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="phoneedit" class="control-label col-sm-3">Phone:</label>
+                                <div class="col-sm-9">
+                                    <input id="phoneedit" class="form-control" type="text" name="name" value="" ng-model="bankData.tempEntities.Banker.phone" placeholder="Phone" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="emailedit" class="control-label col-sm-3">Email:</label>
+                                <div class="col-sm-9">
+                                    <input id="emailedit" class="form-control" type="text" name="name" value="" ng-model="bankData.tempEntities.Banker.email" placeholder="Email" />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                        <a href="" class="btn btn-primary" ng-attr-data-dismiss="{{bankerInputForm.$valid && bankData.idOK && 'modal'}}" ng-click="bankerInputForm.$valid && bankData.idOK && bankData.saveEntity(bankData.bankers, bankData.createEmptyBanker());bankData.setVirginity();">Save</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="customerInput1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-center">
+                        <a class="close" data-dismiss="modal">&times;</a>
+                        <h3 class="modal-title">{{bankData.entityInputTitle}}</h3>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal" name="customerInputForm" novalidate>
+                            <div class="form-group">
+                                <label for="" class="control-label col-sm-3">Customer ID:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="name" class="form-control" required data-validation-check="bankData.idVirgin" data-id-decision="bankData.idOK" ng-change="bankData.setIdStatus(bankData.customers, bankData.createEmptyCustomer())" ng-model="bankData.tempEntities['Customer'].id" value="" placeholder="Customer ID" />
+                                    <span class="glyphicon glyphicon-remove form-control-feedback"></span>
+                                    <label class="control-label error-message required" style="display:block">This Field Is Required</label>
+                                    <label class="control-label error-message id-not-ok" style="display:block">Please Enter a Unipue ID</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="" class="control-label col-sm-3">First Name:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="name" class="form-control" ng-model="bankData.tempEntities['Customer'].firstName" value="" placeholder="First Name" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="" class="control-label col-sm-3">Last Name:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="name" class="form-control" ng-model="bankData.tempEntities['Customer'].lastName" value="" placeholder="Last Name" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="" class="control-label col-sm-3">Date Of Birth:</label>
+                                <div class="col-sm-9">
+                                    <input type="date" name="name" class="form-control" ng-model="bankData.tempEntities['Customer'].dateOfBirth" value="" placeholder="Date Of Birth" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="" class="control-label col-sm-3">Address:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="name" class="form-control" ng-model="bankData.tempEntities['Customer'].address" value="" placeholder="Address" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="" class="control-label col-sm-3">Phone:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="name" class="form-control" ng-model="bankData.tempEntities['Customer'].phone" value="" placeholder="Phone" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="" class="control-label col-sm-3">Email:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="name" class="form-control" ng-model="bankData.tempEntities['Customer'].email" value="" placeholder="Email" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="" class="control-label col-sm-3">Member From:</label>
+                                <div class="col-sm-9">
+                                    <input type="date" name="name" class="form-control" ng-model="bankData.tempEntities['Customer'].memberFrom" value="" placeholder="Member From" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="" class="control-label col-sm-3">Original Branch:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="name" class="form-control" ng-model="bankData.tempEntities['Customer'].originalBranch" value="" placeholder="Original Branch" />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                        <a href="" class="btn btn-primary" ng-attr-data-dismiss="{{customerInputForm.$valid && bankData.idOK && 'modal'}}" ng-click="customerInputForm.$valid && bankData.idOK && bankData.saveEntity(bankData.customers, bankData.createEmptyCustomer());bankData.setVirginity();">Save</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="serviceInput1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header text-center bg-primary">
+                        <a class="close" data-dismiss="modal">&times;</a>
+                        <h3 class="modal-title">{{bankData.entityInputTitle}}</h3>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal" name="serviceInputForm" novalidate>
+                            <div class="form-group">
+                                <label for="serviceDateCus" class="control-label col-sm-3">Service ID:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="name" id="serviceDateCus" required data-validation-check="bankData.idVirgin" data-id-decision="bankData.idOK" ng-change="bankData.setIdStatus(bankData.tempEntities['Customer'].services, bankData.createEmptyService())" ng-model="bankData.tempEntities.Service.id" class="form-control" value="" placeholder="Service ID" />
+                                    <span class="glyphicon glyphicon-remove form-control-feedback"></span>
+                                    <label class="control-label error-message required" style="display:block">This Field Is Required</label>
+                                    <label class="control-label error-message id-not-ok" style="display:block">Please Enter a Unipue ID</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="serviceDateCus" class="control-label col-sm-3">Date:</label>
+                                <div class="col-sm-9">
+                                    <input type="date" name="name" id="serviceDateCus" ng-model="bankData.tempEntities.Service.serviceDate" class="form-control" value="" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="bankerCus" class="control-label col-sm-3">Banker:</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control" ng-model="bankData.tempEntities.Service.bankerId" ng-options="banker.id as banker.firstName + ', ' + banker.lastName for banker in bankData.bankers">
+                                        <option value="">Select the Banker</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="servicesCus" class="control-label col-sm-3">Services:</label>
+                                <div class="col-sm-9">
+                                    <textarea class="form-control" ng-model="bankData.tempEntities.Service.description" id="servicesCus" name="servicesCus" placeholder="Services"></textarea>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                        <a href="" class="btn btn-primary" ng-attr-data-dismiss="{{serviceInputForm.$valid && bankData.idOK && 'modal'}}" ng-click="serviceInputForm.$valid && bankData.idOK && bankData.saveEntity(bankData.tempEntities['Customer'].services, bankData.createEmptyService());bankData.setVirginity();">Save</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="theAlert" class="alert" data-notification-permission="bankData.notificationSignal" >
+            <a href="" class="close">&times;</a>
+            <strong>The {{bankData.message}}&nbsp;</strong>
+        </div>
+    </div>
+    <footer class="text-center">
+        <div class="well">
+            <div class="container-fluid">
+                <p><small>Above names and contact informations are <a href="http://www.briandunning.com/sample-data/" target="_blank">virtual</a> and for testing purposes.</small></p>
+                <p><small>Designed and Implemented By: <a href="http://www.linkedin.com/in/hamidbehnampro/" target="_blank">Hamid Ahmadi Behnam</a></small></p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
