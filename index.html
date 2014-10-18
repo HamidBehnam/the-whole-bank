@@ -135,7 +135,7 @@
                                                 <input id="customerId1" class="form-control" type="text" required data-validation-check="bankData.idVirgin" data-id-decision="bankData.idOK" ng-change="bankData.setIdStatus(bankData.customers, bankData.createEmptyCustomer())" ng-model="bankData.tempEntities.Customer.id" name="name" value="" placeholder="Customer ID" />
                                                 <span class="glyphicon glyphicon-remove form-control-feedback"></span>
                                                 <label class="control-label error-message required">This Field Is Required</label>
-                                                <label class="control-label error-message id-not-ok">Please Enter a Unipue ID</label>
+                                                <label class="control-label error-message id-not-ok">Please Enter a Unique ID</label>
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -240,7 +240,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header text-center bg-danger">
-                        <h3 class="modal-title">Confirm Delete</h3>
+                        <h3 class="modal-title">Confirm Deletion</h3>
                     </div>
                     <div class="modal-body">
                         <p>The Item will be deleted permanently.</p>
@@ -267,7 +267,7 @@
                                     <input id="idedit" class="form-control" type="text" name="name" value="" data-validation-check="bankData.idVirgin" data-id-decision="bankData.idOK" ng-change="bankData.setIdStatus(bankData.bankers, bankData.createEmptyBanker())" ng-model="bankData.tempEntities.Banker.id" placeholder="ID" required />
                                     <span class="glyphicon glyphicon-remove form-control-feedback"></span>
                                     <label class="control-label error-message required" style="display:block">This Field Is Required</label>
-                                    <label class="control-label error-message id-not-ok" style="display:block">Please Enter a Unipue ID</label>
+                                    <label class="control-label error-message id-not-ok" style="display:block">Please Enter a Unique ID</label>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -324,7 +324,7 @@
                                     <input type="text" name="name" class="form-control" required data-validation-check="bankData.idVirgin" data-id-decision="bankData.idOK" ng-change="bankData.setIdStatus(bankData.customers, bankData.createEmptyCustomer())" ng-model="bankData.tempEntities['Customer'].id" value="" placeholder="Customer ID" />
                                     <span class="glyphicon glyphicon-remove form-control-feedback"></span>
                                     <label class="control-label error-message required" style="display:block">This Field Is Required</label>
-                                    <label class="control-label error-message id-not-ok" style="display:block">Please Enter a Unipue ID</label>
+                                    <label class="control-label error-message id-not-ok" style="display:block">Please Enter a Unique ID</label>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -399,7 +399,7 @@
                                     <input type="text" name="name" id="serviceDateCus" required data-validation-check="bankData.idVirgin" data-id-decision="bankData.idOK" ng-change="bankData.setIdStatus(bankData.tempEntities['Customer'].services, bankData.createEmptyService())" ng-model="bankData.tempEntities.Service.id" class="form-control" value="" placeholder="Service ID" />
                                     <span class="glyphicon glyphicon-remove form-control-feedback"></span>
                                     <label class="control-label error-message required" style="display:block">This Field Is Required</label>
-                                    <label class="control-label error-message id-not-ok" style="display:block">Please Enter a Unipue ID</label>
+                                    <label class="control-label error-message id-not-ok" style="display:block">Please Enter a Unique ID</label>
                                 </div>
                             </div>
                             <div class="form-group">
