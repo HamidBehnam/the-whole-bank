@@ -8,6 +8,7 @@
     <meta name="description" content="The Whole Bank is a web application which is implemented to show how to use the modern web technologies to deal with data in client side." />
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css" rel="stylesheet" />
+    <link href="CSS/the-whole-bank.css" rel="stylesheet" />
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
@@ -38,7 +39,7 @@
             <h2><small class="text-capitalize">Managing bank information</small></h2>
         </div>
     </div>
-    <div class="container">
+    <div class="container main-container">
         <ul class="nav nav-pills">
             <li class="dropdown active">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Bankers<span class="caret"></span></a>
@@ -236,6 +237,7 @@
                 </div>
             </div>
         </div>
+        <button class="btn btn-primary undo-button" ng-click="bankData.restoreBackup()"><span class="glyphicon glyphicon-repeat" aria-hidden="true"></span>&nbsp;&nbsp;Undo</button>
         <div class="modal fade" id="confirmDelete">
             <div class="modal-dialog">
                 <div class="modal-content">
