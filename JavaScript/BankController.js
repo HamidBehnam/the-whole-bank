@@ -54,9 +54,7 @@ bankModuleReference.controller("bankController", ["$scope", "$http", function ($
     this.saveEntity = function (ownerArray, entityType) {
 
         //Creating a backup of the current data set.
-        if (entityType instanceof Banker) thisReference.captureBanker();
-        if (entityType instanceof Customer) thisReference.captureCustomer();
-        if (entityType instanceof Service) thisReference.captureCustomer();
+        thisReference.backupDataSet(entityType);
 
         if (this.addingMode) {
             if (!ownerArray) {
@@ -114,9 +112,7 @@ bankModuleReference.controller("bankController", ["$scope", "$http", function ($
     this.deleteEntity = function (ownerArray) {
 
         //Creating a backup of the current data set.
-        if (thisReference.deletableEntityType instanceof Banker) thisReference.captureBanker();
-        if (thisReference.deletableEntityType instanceof Customer) thisReference.captureCustomer();
-        if (thisReference.deletableEntityType instanceof Service) thisReference.captureCustomer();
+        thisReference.backupDataSet(thisReference.deletableEntityType);
 
         this.message = this.deletableEntityType.constructor.name.concat(" ", "Was Successfully Deleted");
 
@@ -226,6 +222,11 @@ bankModuleReference.controller("bankController", ["$scope", "$http", function ($
         return JSON.stringify(source);
     };
 
+    this.backupDataSet = function (dataType) {
+        if (dataType instanceof Banker) thisReference.captureBanker();
+        if (dataType instanceof Customer) thisReference.captureCustomer();
+        if (dataType instanceof Service) thisReference.captureCustomer();
+    };
 
     this.captureBanker = function () {
         var currentBankers = [];
