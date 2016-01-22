@@ -1,0 +1,10 @@
+.main-container {
+    position: relative;
+}
+
+.undo-button {
+    position: absolute;
+    top: 2px;
+    right: 68px;
+    width: 100px;
+}

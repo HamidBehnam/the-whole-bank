@@ -7,6 +7,9 @@ bankModuleReference.controller("bankController", ["$scope", "$http", function ($
     this.bankers = [];
     this.customers = [];
 
+    //this is gonna be array of dataSets.
+    this.capturedDataSets = [];
+
     thisReference = this;
     
     $http.get("Data/Bankers.json").success(function (data) {
@@ -49,6 +52,12 @@ bankModuleReference.controller("bankController", ["$scope", "$http", function ($
         this.idOK = true;
     };
     this.saveEntity = function (ownerArray, entityType) {
+
+        //Creating a backup of the current data set.
+        if (entityType instanceof Banker) thisReference.captureBanker();
+        if (entityType instanceof Customer) thisReference.captureCustomer();
+        if (entityType instanceof Service) thisReference.captureCustomer();
+
         if (this.addingMode) {
             if (!ownerArray) {
                 ownerArray = [];
@@ -103,6 +112,12 @@ bankModuleReference.controller("bankController", ["$scope", "$http", function ($
         this.deletableEntityType = type;
     }
     this.deleteEntity = function (ownerArray) {
+
+        //Creating a backup of the current data set.
+        if (thisReference.deletableEntityType instanceof Banker) thisReference.captureBanker();
+        if (thisReference.deletableEntityType instanceof Customer) thisReference.captureCustomer();
+        if (thisReference.deletableEntityType instanceof Service) thisReference.captureCustomer();
+
         this.message = this.deletableEntityType.constructor.name.concat(" ", "Was Successfully Deleted");
 
         if (this.deletableEntityIndex != -1) {
@@ -209,5 +224,45 @@ bankModuleReference.controller("bankController", ["$scope", "$http", function ($
     };
     this.generateJSON = function (source) {
         return JSON.stringify(source);
-    }
+    };
+
+
+    this.captureBanker = function () {
+        var currentBankers = [];
+        angular.copy(thisReference.bankers, currentBankers);
+        thisReference.capturedDataSets.push({dataSet: currentBankers, type: "Banker"});
+    };
+    this.captureCustomer = function () {
+        var currentCustomers = [];
+        angular.copy(thisReference.customers, currentCustomers);
+        thisReference.capturedDataSets.push({dataSet: currentCustomers, type: "Customer"});
+    };
+
+    this.restoreBackup = function () {
+        if (!thisReference.capturedDataSets.length) {
+            //alert("There are No Changes! Please change something and try again.");
+            this.message = "There are No Changes! Please change something and try again.";
+            this.notificationSignal = !this.notificationSignal;
+            return;
+        }
+
+        var lastlyCaptured = thisReference.capturedDataSets.pop();
+
+        switch (lastlyCaptured.type) {
+            case "Banker":
+                angular.copy(lastlyCaptured.dataSet, thisReference.bankers);
+                break;
+            case "Customer":
+                angular.copy(lastlyCaptured.dataSet, thisReference.customers);
+                break;
+            default:
+                throw "Error: Wrong Value!";
+                return;
+                break;
+        }
+
+        this.message = "Your last change was Undone Successfully";
+
+        this.notificationSignal = !this.notificationSignal;
+    };
 }]);
